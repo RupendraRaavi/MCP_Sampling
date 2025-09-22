@@ -1,4 +1,4 @@
-# MCP Sampling Demo
+# MCP Sampling
 
 This project demonstrates a client-server setup using `fastmcp` where a server exposes multiple tools and a client calls them, handling the LLM sampling itself. It also includes an example of how to integrate the MCP server as a tool within a Google ADK agent.
 

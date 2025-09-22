@@ -72,6 +72,8 @@ This test uses `client_sampling.py` and demonstrates the client performing the L
 
 This test runs the `agent_server` as a tool within an ADK agent.
 
+**Important:** For this example to work, you must first modify `agent_server.py` to include a fallback sampling handler. The ADK agent does not provide a sampling handler, so the server must have its own to process LLM requests. You can copy the `sampling_handler` function and related imports (like `os`, `AsyncOpenAI`, etc.) from `client_sampling.py` into `agent_server.py` and register it with the `FastMCP` instance (e.g., `mcp = FastMCP(name="ExampleAgent", fallback_sampling_handler=sampling_handler)`).
+
 1.  Ensure your `.env` file contains a valid `OPENAI_API_KEY`.
 2.  Run the ADK web server from your terminal:
     ```bash

@@ -9,10 +9,7 @@ load_dotenv(override=True)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 async def sampling_handler(messages: list[SamplingMessage], params: SamplingParams, context: RequestContext) -> str:
-    """
-    Client-side sampling handler — this is called when the server requests sampling.
-    It calls the client's preferred LLM and returns a candidate string.
-    """
+    
     client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
     openai_messages = []
@@ -27,8 +24,8 @@ async def sampling_handler(messages: list[SamplingMessage], params: SamplingPara
         model="gpt-4o-mini",
         messages=openai_messages,
         temperature=0.8,
-        max_tokens=300,
-        n=1,
+        max_tokens=500,
+        n=3,
     )
 
     if resp.choices:
@@ -37,17 +34,41 @@ async def sampling_handler(messages: list[SamplingMessage], params: SamplingPara
     return ""
 
 async def main():
-    client = Client("welcome_server.py", sampling_handler=sampling_handler)
+  
+    client = Client("agent_server.py", sampling_handler=sampling_handler)
 
     async with client:
-        tools = await client.list_tools()
-        print("tools/list ->", tools)
-
-        res = await client.call_tool(
+        print("--- Calling welcome tool ---")
+        user_topic = input("Enter your topic ")
+        welcome_res = await client.call_tool(
             "generate_welcome_note_options",
-            {"topic": "a product manager joining our startup"},
+            {"topic": user_topic},
         )
-        print("tools/call ->", res.data)
+        print(welcome_res.data)
+
+        print("--- Calling expander tool ---")
+        user_goal = input("Enter your goal ")
+        expander_res = await client.call_tool(
+            "expander",
+            {"goal": user_goal},
+        )
+        print(expander_res.data)
+
+        print("\n--- Calling get_blood_test_results tool ---")
+        name = input("Enter your name: ")                                                                                          
+        hemoglobin = input("Enter your hemoglobin level (e.g., 15.5 g/dL): ")                                                      
+        cholesterol = input("Enter your cholesterol level (e.g., 190 mg/dL): ")                                                    
+        glucose = input("Enter your glucose level (e.g., 130 mg/dL): ") 
+        blood_test_res = await client.call_tool(
+            "get_blood_test_results",
+            {                                                                                                                      
+                "name": name,                                                                                                      
+                "hemoglobin": hemoglobin,                                                                                          
+                "cholesterol": cholesterol,                                                                                        
+                "glucose": glucose,                                                                                                
+            },
+        )
+        print(blood_test_res.data)
 
 if __name__ == "__main__":
     asyncio.run(main())
